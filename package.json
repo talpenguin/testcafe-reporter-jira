@@ -1,8 +1,8 @@
 {
   "name": "testcafe-reporter-jira",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Testcafe reporter Jira plugin",
+  "main": "src/index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/talpenguin/testcafe-reporter-jira/issues"
   },
-  "homepage": "https://github.com/talpenguin/testcafe-reporter-jira#readme"
+  "homepage": "https://github.com/talpenguin/testcafe-reporter-jira#readme",
+  "dependencies": {
+    "dotenv": "^8.1.0",
+    "request": "^2.88.0",
+    "testcafe": "^1.5.0"
+  }
 }
