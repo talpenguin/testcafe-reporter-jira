@@ -1,0 +1,24 @@
+{
+  "name": "testcafe-repoerter-jira",
+  "version": "1.0.0",
+  "description": "Testcafe-Jira Reporter plugin",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/talpenguin/testcafe-reporter-jira.git"
+  },
+  "keywords": [
+    "testcafe",
+    "reporter",
+    "jira"
+  ],
+  "author": "Tal Erez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/talpenguin/testcafe-reporter-jira/issues"
+  },
+  "homepage": "https://github.com/talpenguin/testcafe-reporter-jira#readme"
+}
