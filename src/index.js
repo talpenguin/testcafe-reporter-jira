@@ -1,3 +1,5 @@
+"use strict";
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -29,7 +31,7 @@ exports["default"] = function() {
 
       var hasErr = !!testRunInfo.errs.length;
       var arr = name.split(":");
-      var sTestCaseID = arr[0];
+      var sTestCaseID = this.currentFixtureName + ": " + arr[0];
       var sTestCaseDescription = arr[1];
 
       console.log("TestCase Id --> " + sTestCaseID);

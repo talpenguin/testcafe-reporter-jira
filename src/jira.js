@@ -1,37 +1,45 @@
+"use strict";
+
 var req = require("request");
 
 require("dotenv").config();
 
 function updateTestResult(TestCaseID, TestStatus, TestComment) {
   console.log("Jira User --> " + process.env.JIRA_USERNAME);
+  console.log("Test Status --> " + TestStatus);
   var jiraInfo = {
-    uri:
+    url:
       "https://" +
       process.env.JIRA_USERNAME +
       ":" +
       process.env.JIRA_PASSWORD +
       "@" +
       process.env.JIRA_BASE_URL +
-      "/rest/atm/1.0/testrun/" +
-      process.env.JIRA_TEST_RUN +
-      "/testcase/" +
-      TestCaseID +
-      "/testresult",
+      "/rest/api/2/issue/",
     method: "POST",
     json: {
-      status: TestStatus,
-      userKey: process.env.JIRA_USERNAME,
-      scriptResults: [
-        {
-          index: 0,
-          status: TestStatus,
-          comment: TestComment
+      fields: {
+        project: {
+          key: process.env.JIRA_PROJECT_KEY
+        },
+        summary: TestCaseID,
+        description: TestComment,
+        issuetype: {
+          name: JIRA_ISSUE_TYPE
+        },
+        customfield_11200: [
+          {
+            value: process.env.JIRA_CUSTOMER
+          }
+        ],
+        priority: {
+          name: process.env.JIRA_PRIORITY
         }
-      ]
+      }
     }
   };
 
-  req(jiraInfo, function(error, response) {
+  req(jiraInfo, function(error, response, body) {
     if (!error && response.statusCode === 200) console.log(response.statusCode);
   });
 }
