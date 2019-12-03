@@ -25,7 +25,7 @@ function updateTestResult(TestCaseID, TestStatus, TestComment) {
         summary: TestCaseID,
         description: TestComment,
         issuetype: {
-          name: JIRA_ISSUE_TYPE
+          name: process.env.JIRA_ISSUE_TYPE
         },
         customfield_11200: [
           {
@@ -39,7 +39,7 @@ function updateTestResult(TestCaseID, TestStatus, TestComment) {
     }
   };
 
-  req(jiraInfo, function(error, response, body) {
+  req(jiraInfo, function(error, response) {
     if (!error && response.statusCode === 200) console.log(response.statusCode);
   });
 }

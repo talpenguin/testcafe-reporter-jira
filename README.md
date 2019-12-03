@@ -1,11 +1,11 @@
-# testcafe-reporter-jira
+# testcafe-reporter-testcafe-jira
 
 This is the **Jira-reporter** plugin for [TestCafe](http://devexpress.github.io/testcafe).
 
 ## Install
 
 ```
-npm install testcafe-jira
+npm install testcafe-reporter-testcafe-jira
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ JIRA_PRIORITY=priority
 When you run tests from the command line, specify the reporter name by using the `--reporter` option:
 
 ```
-testcafe chrome 'path/to/test/file.js' --reporter jira
+testcafe chrome 'path/to/test/file.js' --reporter testcafe-jira
 ```
 
 When you use API, pass the reporter name to the `reporter()` method:
@@ -39,7 +39,7 @@ testCafe
   .createRunner()
   .src("path/to/test/file.js")
   .browsers("chrome")
-  .reporter("jira") // <-
+  .reporter("testcafe-jira") // <-
   .run();
 ```
 
