@@ -34,7 +34,12 @@ function updateTestResult(TestCaseID, TestStatus, TestComment) {
         ],
         priority: {
           name: process.env.JIRA_PRIORITY
-        }
+        },
+        components: [
+          {
+            name: process.env.JIRA_COMPONENT
+          }
+        ]
       }
     }
   };
