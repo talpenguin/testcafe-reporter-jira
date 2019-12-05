@@ -55,37 +55,37 @@ function updateTestResult(TestCaseID, TestStatus, TestComment) {
   // get issue from Jira's API
   req(getIssue, function(error, response, body) {
     var bodyParse = JSON.parse(body);
-    var issueKey = bodyParse.issues[0].key;
-    var status = bodyParse.issues[0].fields.status.name;
-    console.log("Issue Key ----------> " + issueKey);
+    console.log(bodyParse.issues.length);
 
-    var putIssue = {
-      url: jiraUrl + "issue/" + issueKey,
-      method: "PUT",
-      json: {
-        fields: {
-          description: TestComment
+    //issue exists- Updating
+    if (bodyParse.issues.length > 0) {
+      var issueKey = bodyParse.issues[0].key;
+      var status = bodyParse.issues[0].fields.status.name;
+      console.log("Issue Key ----------> " + issueKey);
+
+      var putIssue = {
+        url: jiraUrl + "issue/" + issueKey,
+        method: "PUT",
+        json: {
+          fields: {
+            description: TestComment
+          }
         }
-      }
-    };
+      };
 
-    var openIssue = {
-      url: jiraUrl + "issue/" + issueKey + "/transitions",
-      method: "POST",
-      body: { transition: { id: "41" } },
-      json: true
-    };
+      var openIssue = {
+        url: jiraUrl + "issue/" + issueKey + "/transitions",
+        method: "POST",
+        body: { transition: { id: "41" } },
+        json: true
+      };
 
-    var resolveIssue = {
-      url: jiraUrl + "issue/" + issueKey + "/transitions",
-      method: "POST",
-      body: { transition: { id: "31" } },
-      json: true
-    };
-
-    // key exists- issue needs to be updated
-    if (issueKey !== undefined) {
-      console.log("UPDATING AN ISSUE");
+      var resolveIssue = {
+        url: jiraUrl + "issue/" + issueKey + "/transitions",
+        method: "POST",
+        body: { transition: { id: "31" } },
+        json: true
+      };
 
       // test has failed
       if (TestStatus == "Fail") {
@@ -120,13 +120,15 @@ function updateTestResult(TestCaseID, TestStatus, TestComment) {
         });
       }
     }
-    // key doesn't exists- create a new one
+    // issue doesn't exist and test failed- create a new one
     else {
-      console.log("CREATING A NEW JIRA ISSUE");
-      req(postIssue, function(error, response) {
-        if (!error && response.statusCode === 200)
-          console.log(response.statusCode);
-      });
+      if (TestStatus == "Fail") {
+        console.log("CREATING A NEW JIRA ISSUE");
+        req(postIssue, function(error, response) {
+          if (!error && response.statusCode === 200)
+            console.log(response.statusCode);
+        });
+      }
     }
     if (!error && response.statusCode === 200) console.log(response.statusCode);
   });
