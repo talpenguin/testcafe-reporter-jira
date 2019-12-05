@@ -47,7 +47,14 @@ exports["default"] = function() {
             _this.formatError(err, idx + 1 + ") ")
           );
         });
-      } else console.log("Test is successful --> " + sTestCaseDescription);
+      } else {
+        console.log("Test is successful --> " + sTestCaseDescription);
+        uploadReport.updateTestResult(
+          sTestCaseID,
+          "Pass",
+          "Test is successful --> " + sTestCaseDescription
+        );
+      }
     },
 
     reportTaskDone: function reportTaskDone(endTime, passed) {
