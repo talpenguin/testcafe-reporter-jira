@@ -1,6 +1,6 @@
 {
   "name": "testcafe-reporter-testcafe-jira",
-  "version": "2.0.5",
+  "version": "3.0.0",
   "description": "Testcafe reporter Jira plugin",
   "main": "src/index",
   "scripts": {
