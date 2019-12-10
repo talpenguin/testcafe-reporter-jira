@@ -35,7 +35,7 @@ exports["default"] = function() {
       var sTestCaseDescription = arr[1];
 
       console.log("TestCase Id --> " + sTestCaseID);
-      console.log("TestCase Description --> " + sTestCaseDescription);
+
       if (hasErr) {
         testRunInfo.errs.forEach(function(err, idx) {
           console.log(
@@ -49,11 +49,7 @@ exports["default"] = function() {
         });
       } else {
         console.log("Test is successful --> " + sTestCaseDescription);
-        uploadReport.updateTestResult(
-          sTestCaseID,
-          "Pass",
-          "Test is successful --> " + sTestCaseDescription
-        );
+        uploadReport.updateTestResult(sTestCaseID, "Pass");
       }
     },
 

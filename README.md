@@ -25,9 +25,9 @@ JIRA_PRIORITY=priority
 JIRA_COMPONENT=component
 ```
 
-Transition id numbers in jira.js file might need to get modified according to your own Jira transition API.
+Transition id numbers in `jira.js` file might need to get modified, ss well as other values such as `customfield` according to your own Jira transition API.
 
-When you run tests from the command line, specify the reporter name by using the `--reporter` option:
+When you run tests from the command line, specify the reporter name by using the `--reporter` or `-r` option:
 
 ```
 testcafe chrome 'path/to/test/file.js' -r testcafe-jira
@@ -48,4 +48,4 @@ testCafe
 
 Tal Erez
 
-Skeleton Code used from [testcafe-reporter-jira-report](https://www.jsdelivr.com/package/npm/testcafe-reporter-jira-report)
+Skeleton code used from [testcafe-reporter-jira-report](https://www.jsdelivr.com/package/npm/testcafe-reporter-jira-report)

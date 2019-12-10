@@ -55,7 +55,6 @@ function updateTestResult(TestCaseID, TestStatus, TestComment) {
   // get issue from Jira's API
   req(getIssue, function(error, response, body) {
     var bodyParse = JSON.parse(body);
-    console.log(bodyParse.issues.length);
 
     //issue exists- Updating
     if (bodyParse.issues.length > 0) {
@@ -93,41 +92,26 @@ function updateTestResult(TestCaseID, TestStatus, TestComment) {
         if (status == "Resolved" || status == "Closed") {
           console.log("REOPENING A RESOLVED ISSUE");
           req(openIssue, function(error, response) {
-            if (!error && response.statusCode === 200)
-              console.log(response.statusCode);
-
             //update issue description after changing status
-            req(putIssue, function(error, response) {
-              if (!error && response.statusCode === 200)
-                console.log(response.statusCode);
-            });
+            req(putIssue, function(error, response) {});
           });
         }
         // issue not resolved- only update description
         else {
-          req(putIssue, function(error, response) {
-            if (!error && response.statusCode === 200)
-              console.log(response.statusCode);
-          });
+          req(putIssue, function(error, response) {});
         }
       }
       //test passed- resolve the issue
       else {
         console.log("TEST PASSED- RESOLVING AN ISSUE");
-        req(resolveIssue, function(error, response) {
-          if (!error && response.statusCode === 200)
-            console.log(response.statusCode);
-        });
+        req(resolveIssue, function(error, response) {});
       }
     }
     // issue doesn't exist and test failed- create a new one
     else {
       if (TestStatus == "Fail") {
         console.log("CREATING A NEW JIRA ISSUE");
-        req(postIssue, function(error, response) {
-          if (!error && response.statusCode === 200)
-            console.log(response.statusCode);
-        });
+        req(postIssue, function(error, response) {});
       }
     }
     if (!error && response.statusCode === 200) console.log(response.statusCode);
