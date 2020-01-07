@@ -32,7 +32,7 @@ exports["default"] = function() {
       var hasErr = !!testRunInfo.errs.length;
       var arr = name.split(":");
       var sTestCaseID = this.currentFixtureName + ": " + arr[0];
-      var sTestCaseDescription = arr[1];
+      var sTestCaseDescription = arr[0];
 
       console.log("TestCase Id --> " + sTestCaseID);
 

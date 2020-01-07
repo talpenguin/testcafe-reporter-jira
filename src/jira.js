@@ -103,8 +103,10 @@ function updateTestResult(TestCaseID, TestStatus, TestComment) {
       }
       //test passed- resolve the issue
       else {
-        console.log("TEST PASSED- RESOLVING AN ISSUE");
-        req(resolveIssue, function(error, response) {});
+        if (status != "Resolved" || status != "Closed") {
+          console.log("TEST PASSED- RESOLVING AN ISSUE");
+          req(resolveIssue, function(error, response) {});
+        }
       }
     }
     // issue doesn't exist and test failed- create a new one
