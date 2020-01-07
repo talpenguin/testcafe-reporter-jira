@@ -103,7 +103,7 @@ function updateTestResult(TestCaseID, TestStatus, TestComment) {
       }
       //test passed- resolve the issue
       else {
-        if (status != "Resolved" || status != "Closed") {
+        if (status != "Resolved" && status != "Closed") {
           console.log("TEST PASSED- RESOLVING AN ISSUE");
           req(resolveIssue, function(error, response) {});
         }
