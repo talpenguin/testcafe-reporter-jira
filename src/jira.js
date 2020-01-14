@@ -8,6 +8,11 @@ function updateTestResult(TestCaseID, TestStatus, TestComment) {
   console.log("Jira User --> " + process.env.JIRA_USERNAME);
   console.log("Test Status --> " + TestStatus);
 
+  //this  will run in case of reserved characters in testname and remove them
+  if (/&|#/.test(TestCaseID)) {
+    TestCaseID = TestCaseID.replace(/&|#/, "");
+  }
+
   var jiraUrl =
     "https://" +
     process.env.JIRA_USERNAME +
@@ -103,10 +108,8 @@ function updateTestResult(TestCaseID, TestStatus, TestComment) {
       }
       //test passed- resolve the issue
       else {
-        if (status != "Resolved" && status != "Closed") {
-          console.log("TEST PASSED- RESOLVING AN ISSUE");
-          req(resolveIssue, function(error, response) {});
-        }
+        console.log("TEST PASSED- RESOLVING AN ISSUE");
+        req(resolveIssue, function(error, response) {});
       }
     }
     // issue doesn't exist and test failed- create a new one
@@ -116,7 +119,6 @@ function updateTestResult(TestCaseID, TestStatus, TestComment) {
         req(postIssue, function(error, response) {});
       }
     }
-    if (!error && response.statusCode === 200) console.log(response.statusCode);
   });
 }
 exports.updateTestResult = updateTestResult;

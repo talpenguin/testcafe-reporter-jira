@@ -55,7 +55,7 @@ exports["default"] = function() {
 
     reportTaskDone: function reportTaskDone(endTime, passed) {
       console.log("End Time --> " + endTime);
-      console.log("Total Pass --> " + passed);
+      console.log("Total Pass --> " + passed + " / " + this.testCount);
     }
   };
 };
