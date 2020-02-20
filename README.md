@@ -25,6 +25,15 @@ JIRA_PRIORITY=priority
 JIRA_COMPONENT=component
 ```
 
+Slack messages can be integrated as well by adding following variables to your .env file
+
+```
+TESTCAFE_SLACK_WEBHOOK=
+TESTCAFE_SLACK_CHANNEL=
+TESTCAFE_SLACK_USERNAME=
+TESTCAFE_SLACK_LOGGING_LEVEL=
+```
+
 Transition id numbers in `jira.js` file might need to get modified, ss well as other values such as `customfield` according to your own Jira transition API.
 
 When you run tests from the command line, specify the reporter name by using the `--reporter` or `-r` option:
