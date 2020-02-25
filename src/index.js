@@ -98,7 +98,7 @@ exports["default"] = function() {
             endTime
         );
         slack.sendMessage(slack.getSlackMessage());
-      }, 1000);
+      }, 0);
     }
   };
 };
