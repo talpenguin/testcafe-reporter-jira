@@ -97,6 +97,11 @@ exports["default"] = function() {
             "\n *TestCafe-Jira-reporter Done ---->* " +
             endTime
         );
+        if (passed != _this.testCount) {
+          slack.addMessage(
+            "<!subteam^" + process.env.TESTCAFE_SLACK_USREGROUP_ID + ">"
+          );
+        }
         slack.sendMessage(slack.getSlackMessage());
       }, 0);
     }
