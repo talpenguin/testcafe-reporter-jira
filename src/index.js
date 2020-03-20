@@ -1,10 +1,18 @@
 "use strict";
 
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var uploadReport = require("./jira");
 var SlackMessage = require("./slackMessage");
 
 exports["default"] = function() {
   return {
+    noColors: true,
+
+
     reportTaskStart: function reportTaskStart(
       startTime,
       userAgents,
@@ -21,6 +29,7 @@ exports["default"] = function() {
 
       console.log("Start Time --> " + this.startTime);
       console.log("Browser Agent --> " + this.userAgents);
+
     },
 
     reportFixtureStart: function reportFixtureStart(name) {
@@ -30,9 +39,8 @@ exports["default"] = function() {
       console.log("Fixture Name --> " + this.currentFixtureName);
 
       setTimeout(function() {
-        this.currentFixtureName = name;
-        slack.sendMessage("*" + this.currentFixtureName + "*");
-      }, 1500);
+        this.currentFixtureName = name ;
+        slack.sendMessage("*"+this.currentFixtureName+"*")}, 1500);
     },
 
     reportTestDone: async function reportTestDone(name, testRunInfo) {
@@ -87,37 +95,29 @@ exports["default"] = function() {
     reportTaskDone: async function reportTaskDone(endTime, passed) {
       var slack = this.slack;
       var _this = this;
-      var failed = _this.testCount - passed;
-      const time = this.moment(endTime).format("D/M/YYYY h:mm:ss a");
+      var failed = _this.testCount - passed
+      const time = this.moment(endTime).format('D/M/YYYY h:mm:ss a');
 
       console.log("End Time --> " + endTime);
       console.log("Total Pass --> " + passed + " / " + this.testCount);
 
-      await new Promise(resolve =>
-        setTimeout(function() {
+
+      await new Promise(resolve => setTimeout(function() {
+        slack.addMessage(
+          "Total Pass --> " +
+            passed +
+            " / " +
+            _this.testCount +
+            "\n *TestCafe-Jira-reporter Done ---->* " +
+            endTime
+        );
+        if (passed != _this.testCount) {
           slack.addMessage(
-            "Total Pass --> " +
-              passed +
-              " / " +
-              _this.testCount +
-              "\n *TestCafe-Jira-reporter Done ---->* " +
-              endTime
+            "\n<!subteam^" + process.env.TESTCAFE_SLACK_USREGROUP_ID + "> Dear frontend team, there are *" +  failed + "* blocker tickets resulting from the latest test run on " + time + "."
           );
-          if (passed != _this.testCount) {
-            slack.addMessage(
-              "\n<!subteam^" +
-                process.env.TESTCAFE_SLACK_USREGROUP_ID +
-                "> Dear frontend team, there are *" +
-                failed +
-                "* blocker tickets resulting from the latest test run on " +
-                time +
-                "."
-            );
-          }
-          resolve(slack.sendMessage(slack.getSlackMessage()));
-        }, 3000)
-      );
-    }
+        }
+        resolve(slack.sendMessage(slack.getSlackMessage()));
+      }, 3000))}
   };
 };
 
