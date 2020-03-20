@@ -32,6 +32,7 @@ TESTCAFE_SLACK_WEBHOOK=
 TESTCAFE_SLACK_CHANNEL=
 TESTCAFE_SLACK_USERNAME=
 TESTCAFE_SLACK_LOGGING_LEVEL=
+TESTCAFE_SLACK_USREGROUP_ID=
 ```
 
 Transition id numbers in `jira.js` file might need to get modified, ss well as other values such as `customfield` according to your own Jira transition API.

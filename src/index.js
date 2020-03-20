@@ -1,15 +1,10 @@
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 var uploadReport = require("./jira");
 var SlackMessage = require("./slackMessage");
 
 exports["default"] = function() {
   return {
-    noColors: true,
-
     reportTaskStart: function reportTaskStart(
       startTime,
       userAgents,
@@ -20,17 +15,24 @@ exports["default"] = function() {
       this.startTime = startTime;
       this.testCount = testCount;
       this.userAgents = userAgents;
-      console.log("Start Time --> " + this.startTime);
-      console.log("Browser Agent --> " + this.userAgents);
       this.slack.sendMessage(
         "*Starting TestCafe-Jira-reporter ---->* " + this.startTime
       );
+
+      console.log("Start Time --> " + this.startTime);
+      console.log("Browser Agent --> " + this.userAgents);
     },
 
     reportFixtureStart: function reportFixtureStart(name) {
       this.currentFixtureName = name;
+      var slack = this.slack;
+
       console.log("Fixture Name --> " + this.currentFixtureName);
-      this.slack.addMessage(this.currentFixtureName);
+
+      setTimeout(function() {
+        this.currentFixtureName = name;
+        slack.sendMessage("*" + this.currentFixtureName + "*");
+      }, 1500);
     },
 
     reportTestDone: async function reportTestDone(name, testRunInfo) {
@@ -66,7 +68,7 @@ exports["default"] = function() {
           );
 
           if (msgToSend != null) {
-            slack.addMessage(msgToSend);
+            slack.sendMessage(msgToSend);
           }
         });
       } else {
@@ -77,33 +79,44 @@ exports["default"] = function() {
         );
 
         if (msgToSend != null) {
-          slack.addMessage(msgToSend);
+          slack.sendMessage(msgToSend);
         }
       }
     },
 
-    reportTaskDone: function reportTaskDone(endTime, passed) {
+    reportTaskDone: async function reportTaskDone(endTime, passed) {
       var slack = this.slack;
       var _this = this;
+      var failed = _this.testCount - passed;
+      const time = this.moment(endTime).format("D/M/YYYY h:mm:ss a");
+
       console.log("End Time --> " + endTime);
       console.log("Total Pass --> " + passed + " / " + this.testCount);
 
-      setTimeout(function() {
-        slack.addMessage(
-          "Total Pass --> " +
-            passed +
-            " / " +
-            _this.testCount +
-            "\n *TestCafe-Jira-reporter Done ---->* " +
-            endTime
-        );
-        if (passed != _this.testCount) {
+      await new Promise(resolve =>
+        setTimeout(function() {
           slack.addMessage(
-            "<!subteam^" + process.env.TESTCAFE_SLACK_USREGROUP_ID + ">"
+            "Total Pass --> " +
+              passed +
+              " / " +
+              _this.testCount +
+              "\n *TestCafe-Jira-reporter Done ---->* " +
+              endTime
           );
-        }
-        slack.sendMessage(slack.getSlackMessage());
-      }, 0);
+          if (passed != _this.testCount) {
+            slack.addMessage(
+              "\n<!subteam^" +
+                process.env.TESTCAFE_SLACK_USREGROUP_ID +
+                "> Dear frontend team, there are *" +
+                failed +
+                "* blocker tickets resulting from the latest test run on " +
+                time +
+                "."
+            );
+          }
+          resolve(slack.sendMessage(slack.getSlackMessage()));
+        }, 3000)
+      );
     }
   };
 };

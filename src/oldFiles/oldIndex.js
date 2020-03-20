@@ -1,3 +1,5 @@
+// Jira plugin without slack integration
+
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
