@@ -100,86 +100,90 @@ exports["default"] = function() {
       console.log("End Time --> " + endTime);
       console.log("Total Pass --> " + passed + " / " + this.testCount);
 
-      await new Promise(resolve =>
-        setTimeout(function() {
-          slack.addMessage(
-            "Total Pass --> " +
-              passed +
-              " / " +
-              _this.testCount +
-              "\n *TestCafe-Jira-reporter Done ---->* " +
-              endTime
-          );
-          if (passed != _this.testCount) {
-            slack.addMessage(
-              "\n<!subteam^" +
-                process.env.TESTCAFE_SLACK_USREGROUP_ID +
-                "> Dear frontend team, there are *" +
-                failed +
-                "* blocker tickets resulting from the latest test run on " +
-                time +
-                "."
-            );
-          }
-          resolve(slack.sendMessage(slack.getSlackMessage()));
-        }, 3000)
+      slack.addMessage(
+        "Total Pass --> " +
+          passed +
+          " / " +
+          _this.testCount +
+          "\n *TestCafe-Jira-reporter Done ---->* " +
+          endTime
       );
+      if (passed != _this.testCount) {
+        slack.addMessage(
+          "\n<!subteam^" +
+            process.env.TESTCAFE_SLACK_USREGROUP_ID +
+            "> Dear frontend team, there are *" +
+            failed +
+            "* blocker tickets resulting from the latest test run on " +
+            time +
+            "."
+        );
+      }
+      slack.sendMessage(slack.getSlackMessage());
 
       // update deployment ticket status if all tests passed
       if (process.env.DEPLOYMENT_ISSUE && failed === 0) {
+        console.log(
+          "deployment issue parameter --> " + process.env.DEPLOYMENT_ISSUE
+        );
 
-      console.log('deployment issue parameter --> ' + process.env.DEPLOYMENT_ISSUE)
+        var jiraUrl =
+          "https://" +
+          process.env.JIRA_USERNAME +
+          ":" +
+          process.env.JIRA_PASSWORD +
+          "@" +
+          process.env.JIRA_BASE_URL +
+          "/rest/api/2/";
 
-      var jiraUrl =
-        "https://" +
-        process.env.JIRA_USERNAME +
-        ":" +
-        process.env.JIRA_PASSWORD +
-        "@" +
-        process.env.JIRA_BASE_URL +
-        "/rest/api/2/";
-
-
-      var getChildIssue = {
-        url: jiraUrl + `issue/${process.env.DEPLOYMENT_ISSUE}`,
-        method: "GET"
-      };
-      await new Promise(resolve =>
-      req(getChildIssue, function(error, response, body) {
-        console.log('get deployment ticket number...')
-        var bodyParse = JSON.parse(body);
-        var jiraTicket = bodyParse.fields.parent.key;
-
-        var getParentIssue = {
-          url: jiraUrl + `issue/${jiraTicket}`,
+        var getChildIssue = {
+          url: jiraUrl + `issue/${process.env.DEPLOYMENT_ISSUE}`,
           method: "GET"
         };
+        await new Promise(resolve =>
+          req(getChildIssue, function(error, response, body) {
+            console.log("get deployment ticket number...");
+            var bodyParse = JSON.parse(body);
+            var jiraTicket = bodyParse.fields.parent.key;
 
-        req(getParentIssue, function(error, response, body) {
-          console.log('updating deployment ticket...')
-          var bodyParseParent = JSON.parse(body);
+            var getParentIssue = {
+              url: jiraUrl + `issue/${jiraTicket}`,
+              method: "GET"
+            };
 
-          var versionCockpit = bodyParseParent.fields.customfield_10400;
-          versionCockpit =  versionCockpit.replace("E2E Tests Passed (-)", "E2E Tests Passed (/)");
+            req(getParentIssue, function(error, response, body) {
+              console.log("updating deployment ticket...");
+              var bodyParseParent = JSON.parse(body);
 
-          var putIssue = {
-            url: jiraUrl + `issue/${jiraTicket}` ,
-            method: "PUT",
-            json: {
-              fields: {
-                customfield_10400: versionCockpit
-              }
-            }
-          };
-          resolve(req(putIssue, function(error, response) {
-            console.log('Deployment Ticket updated Successfully ')
-            if (error){
-              console.log('Deployment ticket not updated due to Error --> ' + error)
-            }
-          }));
-        })
-      })
-    )}
+              var versionCockpit = bodyParseParent.fields.customfield_10400;
+              versionCockpit = versionCockpit.replace(
+                "E2E Tests Passed (-)",
+                "E2E Tests Passed (/)"
+              );
+
+              var putIssue = {
+                url: jiraUrl + `issue/${jiraTicket}`,
+                method: "PUT",
+                json: {
+                  fields: {
+                    customfield_10400: versionCockpit
+                  }
+                }
+              };
+              resolve(
+                req(putIssue, function(error, response) {
+                  console.log("Deployment Ticket updated Successfully ");
+                  if (error) {
+                    console.log(
+                      "Deployment ticket not updated due to Error --> " + error
+                    );
+                  }
+                })
+              );
+            });
+          })
+        );
+      }
     }
   };
 };
