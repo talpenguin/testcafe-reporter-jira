@@ -39,7 +39,7 @@ exports["default"] = function() {
       setTimeout(function() {
         this.currentFixtureName = name;
         slack.sendMessage("*" + this.currentFixtureName + "*");
-      }, 1500);
+      }, 1000);
     },
 
     reportTestDone: async function reportTestDone(name, testRunInfo) {
@@ -100,89 +100,109 @@ exports["default"] = function() {
       console.log("End Time --> " + endTime);
       console.log("Total Pass --> " + passed + " / " + this.testCount);
 
-      slack.addMessage(
-        "Total Pass --> " +
-          passed +
-          " / " +
-          _this.testCount +
-          "\n *TestCafe-Jira-reporter Done ---->* " +
-          endTime
-      );
-      if (passed != _this.testCount) {
+      setTimeout(function() {
         slack.addMessage(
-          "\n<!subteam^" +
-            process.env.TESTCAFE_SLACK_USREGROUP_ID +
-            "> Dear frontend team, there are *" +
-            failed +
-            "* blocker tickets resulting from the latest test run on " +
-            time +
-            "."
+          "Total Pass --> " +
+            passed +
+            " / " +
+            _this.testCount +
+            "\n *TestCafe-Jira-reporter Done ---->* " +
+            endTime
         );
-      }
-      slack.sendMessage(slack.getSlackMessage());
+        if (passed != _this.testCount) {
+          slack.addMessage(
+            "\n<!subteam^" +
+              process.env.TESTCAFE_SLACK_USREGROUP_ID +
+              "> Dear frontend team, there are *" +
+              failed +
+              "* blocker tickets resulting from the latest test run on " +
+              time +
+              "."
+          );
+        }
+        slack.sendMessage(slack.getSlackMessage());
+      }, 1000);
+
 
       // update deployment ticket status if all tests passed
-      if (process.env.DEPLOYMENT_ISSUE && failed === 0) {
-        console.log(
-          "deployment issue parameter --> " + process.env.DEPLOYMENT_ISSUE
-        );
+      if (process.env.DEPLOYMENT_ISSUE) {
+        if (failed === 0) {
+          console.log(
+            "deployment issue parameter --> " + process.env.DEPLOYMENT_ISSUE
+          );
 
-        var jiraUrl =
-          "https://" +
-          process.env.JIRA_USERNAME +
-          ":" +
-          process.env.JIRA_PASSWORD +
-          "@" +
-          process.env.JIRA_BASE_URL +
-          "/rest/api/2/";
+          var jiraUrl =
+            "https://" +
+            process.env.JIRA_USERNAME +
+            ":" +
+            process.env.JIRA_PASSWORD +
+            "@" +
+            process.env.JIRA_BASE_URL +
+            "/rest/api/2/";
 
-        var getChildIssue = {
-          url: jiraUrl + `issue/${process.env.DEPLOYMENT_ISSUE}`,
-          method: "GET"
-        };
-        await new Promise(resolve =>
-          req(getChildIssue, function(error, response, body) {
-            console.log("get deployment ticket number...");
-            var bodyParse = JSON.parse(body);
-            var jiraTicket = bodyParse.fields.parent.key;
+          var getChildIssue = {
+            url: jiraUrl + `issue/${process.env.DEPLOYMENT_ISSUE}`,
+            method: "GET"
+          };
 
-            var getParentIssue = {
-              url: jiraUrl + `issue/${jiraTicket}`,
-              method: "GET"
-            };
+          // This function updates development ticket in case one was given
 
-            req(getParentIssue, function(error, response, body) {
-              console.log("updating deployment ticket...");
-              var bodyParseParent = JSON.parse(body);
+          await new Promise(resolve =>
+            req(getChildIssue, function(error, response, body) {
+              console.log("get deployment ticket number...");
+              var bodyParse = JSON.parse(body);
+              if (bodyParse.fields.parent) {
+                //only perform if ticket has a parent ticket
+                var jiraTicket = bodyParse.fields.parent.key;
 
-              var versionCockpit = bodyParseParent.fields.customfield_10400;
-              versionCockpit = versionCockpit.replace(
-                "E2E Tests Passed (-)",
-                "E2E Tests Passed (/)"
-              );
+                var getParentIssue = {
+                  url: jiraUrl + `issue/${jiraTicket}`,
+                  method: "GET"
+                };
 
-              var putIssue = {
-                url: jiraUrl + `issue/${jiraTicket}`,
-                method: "PUT",
-                json: {
-                  fields: {
-                    customfield_10400: versionCockpit
-                  }
-                }
-              };
-              resolve(
-                req(putIssue, function(error, response) {
-                  console.log("Deployment Ticket updated Successfully ");
-                  if (error) {
-                    console.log(
-                      "Deployment ticket not updated due to Error --> " + error
-                    );
-                  }
-                })
-              );
-            });
-          })
-        );
+                req(getParentIssue, function(error, response, body) {
+                  console.log("updating deployment ticket...");
+                  var bodyParseParent = JSON.parse(body);
+
+                  var versionCockpit = bodyParseParent.fields.customfield_10400;
+                  // const pattern = /^E2E Tests Passed/i
+                  versionCockpit = versionCockpit.replace(
+                    "E2E Tests Passed (-)",
+                    "E2E Tests Passed (/)"
+                  );
+
+                  var putIssue = {
+                    url: jiraUrl + `issue/${jiraTicket}`,
+                    method: "PUT",
+                    json: {
+                      fields: {
+                        customfield_10400: versionCockpit
+                      }
+                    }
+                  };
+                  resolve(
+                    req(putIssue, function(error, response) {
+                      console.log("Deployment Ticket updated Successfully ");
+                      if (error) {
+                        console.log(
+                          "Deployment ticket not updated due to Error --> " +
+                            error
+                        );
+                      }
+                    })
+                  );
+                });
+              } else {
+                console.log(
+                  "No Parent ticket available- Skips deployment ticket update"
+                );
+              }
+            })
+          );
+        }
+        else {
+          console.log('Deployment parameter is given, but not all tests had passed. Failed to auto update deployment ticket.')
+        }
       }
     }
   };
